@@ -57,7 +57,9 @@ public class DisplayHelper {
         printLine('=');
         System.out.printf(BOLD + "  STUDENT REPORT%n" + RESET);
         printLine('-');
-        System.out.printf("  %-15s : %s%n", "Name",        s.getName());
+        String truncatedName = s.getName().length() > 30 ? 
+            s.getName().substring(0, 27) + "..." : s.getName();
+        System.out.printf("  %-15s : %s%n", "Name",        truncatedName);
         System.out.printf("  %-15s : %s%n", "Roll No",     s.getRollNumber());
         System.out.printf("  %-15s : %d%n", "Subjects",    s.getTotalSubjects());
 
@@ -92,7 +94,7 @@ public class DisplayHelper {
         printLine('=');
         System.out.println(BOLD + "  ALL STUDENTS — SUMMARY TABLE" + RESET);
         printLine('-');
-        System.out.printf(BOLD + "  %-5s  %-20s  %-10s  %-8s  %-6s  %-8s  %s%n" + RESET,
+        System.out.printf(BOLD + "  %-3s  %-18s  %-12s  %-10s  %-6s  %-8s  %s%n" + RESET,
             "No.", "Name", "Roll No", "Average", "Grade", "Subjects", "Status");
         printLine('-');
 
@@ -102,9 +104,11 @@ public class DisplayHelper {
             int i = 1;
             for (Student s : students) {
                 String statusColor = s.getStatus().equals("PASS") ? GREEN : RED;
-                System.out.printf("  %-5d  %-20s  %-10s  %-8s  %-6s  %-8d  %s%s%s%n",
+                String truncatedName = s.getName().length() > 18 ? 
+                    s.getName().substring(0, 15) + "..." : s.getName();
+                System.out.printf("  %-3d  %-18s  %-12s  %-10s  %-6s  %-8d  %s%s%s%n",
                     i++,
-                    s.getName(),
+                    truncatedName,
                     s.getRollNumber(),
                     s.getTotalSubjects() > 0 ? String.format("%.2f%%", s.calculateAverage()) : "N/A",
                     s.getTotalSubjects() > 0 ? s.getLetterGrade() : "N/A",

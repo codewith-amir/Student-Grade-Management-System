@@ -2,6 +2,7 @@ package com.codealpha.gradetracker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Manages the collection of all students.
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public class GradeTracker {
 
-    private List<Student> students;
+    private final List<Student> students;
 
     public GradeTracker() {
         this.students = new ArrayList<>();
@@ -39,18 +40,15 @@ public class GradeTracker {
         return null;
     }
 
-    // ─── Class-Wide Statistics ─────────────────────────────────────────────────
     public double getClassAverage() {
-        if (students.isEmpty()) return 0.0;
-        double total = 0;
-        int count = 0;
-        for (Student s : students) {
-            if (s.getTotalSubjects() > 0) {
-                total += s.calculateAverage();
-                count++;
-            }
-        }
-        return count == 0 ? 0.0 : total / count;
+        List<Student> withGrades = students.stream()
+            .filter(s -> s.getTotalSubjects() > 0)
+            .collect(Collectors.toList());
+        if (withGrades.isEmpty()) return 0.0;
+        return withGrades.stream()
+            .mapToDouble(Student::calculateAverage)
+            .average()
+            .orElse(0.0);
     }
 
     public Student getTopStudent() {
@@ -83,18 +81,14 @@ public class GradeTracker {
     public List<Student> getAllStudents() { return students; }
 
     public int getPassCount() {
-        int count = 0;
-        for (Student s : students) {
-            if (s.getTotalSubjects() > 0 && s.getStatus().equals("PASS")) count++;
-        }
-        return count;
+        return (int) students.stream()
+            .filter(s -> s.getTotalSubjects() > 0 && s.getStatus().equals("PASS"))
+            .count();
     }
 
     public int getFailCount() {
-        int count = 0;
-        for (Student s : students) {
-            if (s.getTotalSubjects() > 0 && s.getStatus().equals("FAIL")) count++;
-        }
-        return count;
+        return (int) students.stream()
+            .filter(s -> s.getTotalSubjects() > 0 && s.getStatus().equals("FAIL"))
+            .count();
     }
 }

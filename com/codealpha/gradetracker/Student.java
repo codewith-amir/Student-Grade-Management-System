@@ -10,9 +10,9 @@ import java.util.List;
  */
 public class Student {
 
-    private String name;
-    private String rollNumber;
-    private List<Double> grades;
+    private final String name;
+    private final String rollNumber;
+    private final List<Double> grades;
 
     // ─── Constructor ───────────────────────────────────────────────────────────
     public Student(String name, String rollNumber) {
@@ -39,16 +39,12 @@ public class Student {
 
     public double getHighestGrade() {
         if (grades.isEmpty()) return 0.0;
-        double max = grades.get(0);
-        for (double g : grades) if (g > max) max = g;
-        return max;
+        return grades.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
     }
 
     public double getLowestGrade() {
         if (grades.isEmpty()) return 0.0;
-        double min = grades.get(0);
-        for (double g : grades) if (g < min) min = g;
-        return min;
+        return grades.stream().mapToDouble(Double::doubleValue).min().orElse(0.0);
     }
 
     // ─── Letter Grade ──────────────────────────────────────────────────────────

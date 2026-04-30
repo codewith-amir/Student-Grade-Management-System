@@ -23,40 +23,40 @@ import java.util.Scanner;
  */
 public class Main {
 
-    private static final Scanner scanner    = new Scanner(System.in);
     private static final GradeTracker tracker = new GradeTracker();
 
     public static void main(String[] args) {
-        DisplayHelper.printBanner();
-        loadSampleData();   // pre-loads 3 demo students so output is visible immediately
+        try (Scanner scanner = new Scanner(System.in)) {
+            DisplayHelper.printBanner();
+            loadSampleData();   // pre-loads 3 demo students so output is visible immediately
 
-        boolean running = true;
-        while (running) {
-            DisplayHelper.printMenu();
-            String input = scanner.nextLine().trim();
+            boolean running = true;
+            while (running) {
+                DisplayHelper.printMenu();
+                String input = scanner.nextLine().trim();
 
-            switch (input) {
-                case "1" -> addStudent();
-                case "2" -> addGradesForStudent();
-                case "3" -> viewStudentReport();
-                case "4" -> DisplayHelper.printAllStudentsTable(tracker.getAllStudents());
-                case "5" -> DisplayHelper.printClassStatistics(tracker);
-                case "6" -> removeStudent();
-                case "0" -> {
-                    System.out.println();
-                    DisplayHelper.printInfo("Thank you for using Student Grade Tracker. Goodbye!");
-                    System.out.println();
-                    running = false;
+                switch (input) {
+                    case "1" -> addStudent(scanner);
+                    case "2" -> addGradesForStudent(scanner);
+                    case "3" -> viewStudentReport(scanner);
+                    case "4" -> DisplayHelper.printAllStudentsTable(tracker.getAllStudents());
+                    case "5" -> DisplayHelper.printClassStatistics(tracker);
+                    case "6" -> removeStudent(scanner);
+                    case "0" -> {
+                        System.out.println();
+                        DisplayHelper.printInfo("Thank you for using Student Grade Tracker. Goodbye!");
+                        System.out.println();
+                        running = false;
+                    }
+                    default  -> DisplayHelper.printError("Invalid choice. Please enter a number from the menu.");
                 }
-                default  -> DisplayHelper.printError("Invalid choice. Please enter a number from the menu.");
             }
         }
-        scanner.close();
     }
 
     // ─── Menu Actions ──────────────────────────────────────────────────────────
 
-    private static void addStudent() {
+    private static void addStudent(Scanner scanner) {
         System.out.println();
         System.out.print("  Enter Student Name     : ");
         String name = scanner.nextLine().trim();
@@ -77,10 +77,15 @@ public class Main {
         }
     }
 
-    private static void addGradesForStudent() {
+    private static void addGradesForStudent(Scanner scanner) {
         System.out.println();
         System.out.print("  Enter Roll Number to add grades for : ");
         String roll = scanner.nextLine().trim();
+
+        if (roll.isEmpty()) {
+            DisplayHelper.printError("Roll Number cannot be empty.");
+            return;
+        }
 
         Student student = tracker.findStudent(roll);
         if (student == null) {
@@ -93,10 +98,18 @@ public class Main {
 
         int count;
         try {
-            count = Integer.parseInt(scanner.nextLine().trim());
-            if (count <= 0) { DisplayHelper.printError("Must add at least 1 grade."); return; }
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                DisplayHelper.printError("Please enter a number.");
+                return;
+            }
+            count = Integer.parseInt(input);
+            if (count <= 0) {
+                DisplayHelper.printError("Must add at least 1 grade.");
+                return;
+            }
         } catch (NumberFormatException e) {
-            DisplayHelper.printError("Invalid number. Please enter an integer.");
+            DisplayHelper.printError("Invalid input. Please enter a valid integer.");
             return;
         }
 
@@ -104,11 +117,16 @@ public class Main {
         for (int i = 1; i <= count; i++) {
             System.out.printf("    Grade for Subject %d (0-100): ", i);
             try {
-                double grade = Double.parseDouble(scanner.nextLine().trim());
+                String gradeInput = scanner.nextLine().trim();
+                if (gradeInput.isEmpty()) {
+                    DisplayHelper.printError("Skipping subject " + i + " (empty input).");
+                    continue;
+                }
+                double grade = Double.parseDouble(gradeInput);
                 student.addGrade(grade);
                 added++;
             } catch (NumberFormatException e) {
-                DisplayHelper.printError("Invalid grade. Skipping subject " + i);
+                DisplayHelper.printError("Invalid grade format. Skipping subject " + i);
             } catch (IllegalArgumentException e) {
                 DisplayHelper.printError(e.getMessage() + " Skipping subject " + i);
             }
@@ -118,7 +136,7 @@ public class Main {
         }
     }
 
-    private static void viewStudentReport() {
+    private static void viewStudentReport(Scanner scanner) {
         System.out.println();
         System.out.print("  Enter Roll Number : ");
         String roll = scanner.nextLine().trim();
@@ -131,7 +149,7 @@ public class Main {
         }
     }
 
-    private static void removeStudent() {
+    private static void removeStudent(Scanner scanner) {
         System.out.println();
         System.out.print("  Enter Roll Number to remove : ");
         String roll = scanner.nextLine().trim();
